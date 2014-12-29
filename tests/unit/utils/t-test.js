@@ -62,14 +62,7 @@ module('t utility function', {
     requirejs.rollback();
     setupLocales();
 
-    application = {
-      localeStream: {
-        value: function() {
-          return application.locale;
-        },
-        subscribe: function () {}
-      }
-    };
+    application = {};
 
     container = new Ember.Container();
     container.lookupFactory = function(name) {
@@ -85,6 +78,12 @@ module('t utility function', {
       if (module && module['default']) { module = module['default']; }
 
       return module;
+    };
+
+    container.localeStream = {
+      value: function() {
+        return application.locale;
+      }
     };
 
     container.register('application:main', application, { instantiate: false });
