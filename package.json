@@ -1,6 +1,6 @@
 {
   "name": "ember-cli-i18n",
-  "version": "0.0.5",
+  "version": "0.0.4",
   "description": "Simple Internationalization support for ember-cli apps.",
   "directories": {
     "doc": "doc",
@@ -11,19 +11,25 @@
     "build": "ember build",
     "test": "ember test"
   },
-  "repository": "https://github.com/dockyard/ember-cli-i18n",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dockyard/ember-cli-i18n"
+  },
   "engines": {
     "node": ">= 0.10.0"
   },
-  "author": "Brian Cardarella",
+  "author": {
+    "name": "Brian Cardarella"
+  },
   "license": "MIT",
   "devDependencies": {
     "broccoli-asset-rev": "^1.0.0",
+    "broccoli-ember-hbs-template-compiler": "^1.6.1",
     "ember-cli": "0.1.4",
+    "ember-cli-htmlbars": "^0.5.1",
     "ember-cli-content-security-policy": "0.3.0",
     "ember-cli-dependency-checker": "0.0.6",
     "ember-cli-esnext": "0.1.1",
-    "ember-cli-htmlbars": "^0.6.0",
     "ember-cli-ic-ajax": "0.1.1",
     "ember-cli-inject-live-reload": "^1.3.0",
     "ember-cli-qunit": "0.1.2",
@@ -37,5 +43,16 @@
   ],
   "ember-addon": {
     "configPath": "tests/dummy/config"
-  }
+  },
+  "gitHead": "192edf66a0baf435a92d071b67a4d41781b13902",
+  "readme": "# Ember CLI i18n\n\n[![Build](https://travis-ci.org/dockyard/ember-cli-i18n.svg?branch=master)](https://travis-ci.org/dockyard/ember-cli-i18n)\n\n## About ##\n\nSimple Internationalization support for ember-cli apps.\n\n**Note: This release requires Ember 1.9. Will likely break with 1.10**\n\n## Install ##\n\n```bash\nnpm install ember-cli-i18n --save-dev\n```\n\n## Usage ##\n\n### Translate\n\n#### Configuration\n\nIn your app's `config/environment.js` you'll need to set\n`ENV.APP.defaultLocale` to a country code:\n\n```javascript\nvar ENV = {\n  APP: {\n    defaultLocale: 'en'\n  }\n};\n```\n\n`defaultLocale` is only the fallback. If you wanted to change the locale\nof the application you should modify your application's `locale`:\n\n```js\nvar set = Ember.set;\nvar application = container.lookup('application:main');\nset(application, 'locale', 'fr');\n```\n\nYou can can trigger this after authentication, or if the user modifies a\nlanguage setting in the app. Of course when this state is removed you\nshould clear `locale` so that internationalization fallback to\n`defaultLocale`.\n\n#### Locale Files\n\nGenerate a new locale file:\n\n```\nember g locale en\n```\n\nThe file will be added to `app/locales`\n\n```\napp\n└── locales\n    └── en.js\n```\n\nThen export a single POJO:\n\n```javascript\nexport default {\n  home: {\n    title: 'Welcome'\n  }\n};\n```\n\n##### Interpolation\n\nYou can add keys for interpolation\n\n```javascript\nexport default {\n  age: 'You are %@1 years old.',\n  name: '%@, %@'\n};\n```\n\nThe rules for interpolation follow the same from\n[`Ember.String.fmt`](http://emberjs.com/api/classes/Ember.String.html#method_fmt)\n\n#### Pluralization\n\nPluralization keys follow the format from\n[CLDR](http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/language_plural_rules.html).\nFor example, for `en` it expects only the keys `one` and `other`:\n\n```javascript\nexport default {\n  friend: {\n    one: 'only one friend, %@2',\n    other: '%@ friends, %@'\n  }\n};\n```\n\nThe first value passed will be considered the `count` for determining\nhow to pluralize.\n\n```javascript\nt('friend', 0, 'Brian');\n// 0 friends, Brian\n\nt('friend', 1, 'Brian');\n// only one friend, Brian\n\nt('friend', 10, 'Brian');\n// 10 friends, Brian\n```\n\nHyphenated languages will be split and the first half will be used to\ndetermine the pluralization rules. So both `en-us` and `en-gb` will\nfollow the `en` rules.\n\n[View the currently supported set of pluralization rules](/addon/rules/).\n\n#### Helper\n\nYou can access the translations in your app with the `t` helper:\n\n```handlebars\n{{t 'home.title'}}\n```\n\nComputed properties for the path are also supported:\n\n```handlebars\n{{t age}}\n```\n\nIf the value has interpolation keys you can pass those values:\n\n```handlebars\n{{t colors colorOne colorTwo}}\n```\n\n#### Utility\n\nThe `t` function can be used outside of templates as a utility function:\n\n```javascript\nimport Ember from 'ember';\n\nexport default Ember.Object.extend({\n  foo: function() {\n    var t = container.lookup('utils:t');\n    return t('foo.bar');\n  }\n});\n```\n\n`t` is automatically injected into **Controllers**, **Components**,\n**Routes**, and **Models**:\n\n```javascript\nexport default DS.Model.extend({\n  name: function() {\n    return this.t('name', 'John', 'Doe');\n  }\n});\n```\nNote that interpolation values can also be passed as an array if you prefer this style. `this.t('name', ['John', 'Doe'])`\n\n#### Testing\nWe inject all of our dependencies into the container, so when unit testing\na Component/Model/Route/Controller, we can manually call our initializer\nto set up the dependencies in a `setup()` call\n\n```javascript\n// we need to pull in a reference to the initializer\nimport initializer from 'dummy/initializers/t';\n\nmoduleForComponent( // or just moduleFor if a Model/Route/Controller\n  'translated-string',\n  'TranslatedString',\n  {\n    setup: function(container){\n      Ember.set(container, 'locale', 'en'); // set default locale\n      initializer.initialize(container); // set up dependencies\n    },\n    needs: ['locale:en'] // forces the app to load the translations\n  }\n);\n```\n\n## Authors ##\n\n* [Brian Cardarella](http://twitter.com/bcardarella)\n\n[We are very thankful for the many contributors](https://github.com/dockyard/ember-cli-i18n/graphs/contributors)\n\n## Versioning ##\n\nThis library follows [Semantic Versioning](http://semver.org)\n\n## Want to help? ##\n\nPlease do! We are always looking to improve this gem. Please see our\n[Contribution Guidelines](https://github.com/dockyard/ember-cli-i18n/blob/master/CONTRIBUTING.md)\non how to properly submit issues and pull requests.\n\n## Legal ##\n\n[DockYard](http://dockyard.com), Inc &copy; 2014\n\n[@dockyard](http://twitter.com/dockyard)\n\n[Licensed under the MIT license](http://www.opensource.org/licenses/mit-license.php)\n",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/dockyard/ember-cli-i18n/issues"
+  },
+  "homepage": "https://github.com/dockyard/ember-cli-i18n",
+  "_id": "ember-cli-i18n@0.0.4",
+  "_shasum": "654b30acbb4a8b0f8cb849a5dae710f980c40403",
+  "_from": "../../../../var/folders/_6/sq7sw1r96jg0n4dhp5hnjj1m0000gn/T/npm-44069-f4bfb6b6/1422027364862-0.8087404498364776/192edf66a0baf435a92d071b67a4d41781b13902",
+  "_resolved": "git+https://github.com/vericred/ember-cli-i18n#192edf66a0baf435a92d071b67a4d41781b13902"
 }

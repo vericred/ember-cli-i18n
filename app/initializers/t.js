@@ -4,7 +4,7 @@ import tHelper from '../helpers/t';
 import Stream from 'ember-cli-i18n/utils/stream';
 
 export function initialize(container, application) {
-  Ember.HTMLBars.registerHelper('t', tHelper);
+  Ember.Handlebars.registerHelper('t', tHelper);
 
   container.localeStream = new Stream(function() {
     return Ember.get(container, 'locale');

@@ -26,8 +26,7 @@ function setupLocales() {
     return {
       foo: 'bar',
       home: {
-        title: 'Welcome',
-        namedTitle: 'Welcome %@'
+        title: 'Welcome'
       },
       number: 'Number: %@1',
       name: '%@ %@',
@@ -112,12 +111,6 @@ test('can lookup in a path', function() {
   application.defaultLocale = 'en';
 
   equal(t('home.title'), 'Welcome');
-});
-
-test('can lookup in a path and does not always assume pluralization', function() {
-  application.defaultLocale = 'en';
-
-  equal(t('home.namedTitle', 'Brian'), 'Welcome Brian');
 });
 
 test('interpolation', function() {
